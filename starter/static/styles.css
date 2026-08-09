@@ -1,9 +1,48 @@
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
+    color: #222;
     text-align: center;
     margin: 0;
     padding: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #121212;
+        color: #f5f5f5;
+    }
+
+    h1,
+    .high-scores h2 {
+        color: #f5f5f5;
+    }
+
+    #player-name,
+    .high-scores,
+    #sudoku-board {
+        background: #1e1e1e;
+        color: #f5f5f5;
+    }
+
+    .sudoku-cell {
+        background: #2a2a2a;
+        color: #f5f5f5;
+        border-color: #666;
+    }
+
+    .sudoku-cell.prefilled {
+        background: #3a3a3a;
+        color: #fff;
+    }
+
+    .sudoku-cell:focus {
+        background: #264653;
+    }
+
+    .sudoku-cell.incorrect {
+        background: #7f1d1d;
+    }
 }
 
 h1 {
@@ -17,6 +56,8 @@ h1 {
     border: 4px solid #333;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: min(90vw, 420px);
+    max-width: 100%;
 }
 
 .sudoku-row {
@@ -24,14 +65,17 @@ h1 {
 }
 
 .sudoku-cell {
-    width: 40px;
-    height: 40px;
+    flex: 1 1 0;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
     border: 1px solid #bbb;
     text-align: center;
-    font-size: 20px;
+    font-size: clamp(14px, 3.4vw, 20px);
     outline: none;
     background: #fafafa;
-    transition: background 0.2s;
+    color: #222;
+    transition: background 0.2s, color 0.2s;
+    box-sizing: border-box;
 }
 
 .sudoku-cell:focus {
@@ -46,6 +90,7 @@ h1 {
 
 .sudoku-cell.incorrect {
     background: #ffcdd2;
+    color: #7f1d1d;
 }
 
 .sudoku-cell:nth-child(3),
@@ -58,13 +103,33 @@ h1 {
     border-bottom: 3px solid #333;
 }
 
+.sudoku-row:nth-child(1) .sudoku-cell,
+.sudoku-row:nth-child(2) .sudoku-cell,
+.sudoku-row:nth-child(4) .sudoku-cell,
+.sudoku-row:nth-child(5) .sudoku-cell,
+.sudoku-row:nth-child(7) .sudoku-cell,
+.sudoku-row:nth-child(8) .sudoku-cell {
+    background: #f7f7f7;
+}
+
+.sudoku-row:nth-child(3) .sudoku-cell,
+.sudoku-row:nth-child(6) .sudoku-cell,
+.sudoku-row:nth-child(9) .sudoku-cell {
+    background: #f0f0f0;
+}
+
 .controls {
     margin: 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
 }
 
 button {
     padding: 8px 18px;
-    margin: 0 8px;
     font-size: 16px;
     border: none;
     background: #1976d2;
@@ -82,4 +147,41 @@ button:hover {
     margin-left: 20px;
     font-size: 16px;
     color: #d32f2f;
+}
+
+#player-name {
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 15px;
+    background: #fff;
+    color: #222;
+}
+
+.high-scores {
+    margin: 24px auto 0;
+    display: inline-block;
+    background: #fff;
+    color: #222;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: min(90vw, 420px);
+}
+
+.high-scores h2 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+#high-scores-list {
+    margin: 0;
+    padding-left: 20px;
+    text-align: left;
+}
+
+#high-scores-list li {
+    margin: 6px 0;
+    color: #444;
 }

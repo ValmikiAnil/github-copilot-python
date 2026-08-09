@@ -1,6 +1,75 @@
 // Client-side rendering and interaction for the Flask-backed Sudoku
 const SIZE = 9;
+const STORAGE_KEY = 'sudoku-high-scores';
 let puzzle = [];
+let gameStartTime = Date.now();
+let checkCount = 0;
+let highScores = [];
+
+function loadHighScores() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return [];
+    }
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .filter(item => item && typeof item.name === 'string' && typeof item.score === 'number')
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+  } catch (error) {
+    console.warn('Unable to load high scores', error);
+    return [];
+  }
+}
+
+function saveHighScores(scores) {
+  highScores = scores;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+  renderHighScores();
+}
+
+function renderHighScores() {
+  const list = document.getElementById('high-scores-list');
+  if (!list) {
+    return;
+  }
+  list.innerHTML = '';
+  if (highScores.length === 0) {
+    const item = document.createElement('li');
+    item.textContent = 'No scores yet';
+    list.appendChild(item);
+    return;
+  }
+  highScores.forEach((entry, index) => {
+    const item = document.createElement('li');
+    item.textContent = `${index + 1}. ${entry.name} — ${entry.score}`;
+    list.appendChild(item);
+  });
+}
+
+function isTopScore(score) {
+  return highScores.length < 10 || score > highScores[highScores.length - 1].score;
+}
+
+function addHighScore(name, score) {
+  if (!isTopScore(score)) {
+    return false;
+  }
+  const updatedScores = [...highScores, {name, score}]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+  saveHighScores(updatedScores);
+  return true;
+}
+
+function getCurrentScore() {
+  const elapsedSeconds = Math.max(1, Math.floor((Date.now() - gameStartTime) / 1000));
+  return Math.max(100, 1000 - (elapsedSeconds * 5) - (checkCount * 10));
+}
 
 function createBoardElement() {
   const boardDiv = document.getElementById('sudoku-board');
@@ -51,6 +120,8 @@ async function newGame() {
   const res = await fetch('/new');
   const data = await res.json();
   renderPuzzle(data.puzzle);
+  gameStartTime = Date.now();
+  checkCount = 0;
   document.getElementById('message').innerText = '';
 }
 
@@ -73,6 +144,7 @@ async function checkSolution() {
   });
   const data = await res.json();
   const msg = document.getElementById('message');
+  checkCount += 1;
   if (data.error) {
     msg.style.color = '#d32f2f';
     msg.innerText = data.error;
@@ -88,8 +160,13 @@ async function checkSolution() {
     }
   }
   if (incorrect.size === 0) {
+    const playerName = document.getElementById('player-name').value.trim() || 'Anonymous';
+    const score = getCurrentScore();
+    const entered = addHighScore(playerName, score);
     msg.style.color = '#388e3c';
-    msg.innerText = 'Congratulations! You solved it!';
+    msg.innerText = entered
+      ? `Congratulations! You solved it! New high score saved for ${playerName}.`
+      : `Congratulations! You solved it! Your score was ${score}.`;
   } else {
     msg.style.color = '#d32f2f';
     msg.innerText = 'Some cells are incorrect.';
@@ -98,6 +175,8 @@ async function checkSolution() {
 
 // Wire buttons
 window.addEventListener('load', () => {
+  highScores = loadHighScores();
+  renderHighScores();
   document.getElementById('new-game').addEventListener('click', newGame);
   document.getElementById('check-solution').addEventListener('click', checkSolution);
   // initialize
