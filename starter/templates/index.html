@@ -1,23 +1,115 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Sudoku Game</title>
-  <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sudoku Game</title>
+
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
+
 <body>
-  <h1>Sudoku Game</h1>
-  <div id="sudoku-board"></div>
-  <div class="controls">
-    <button id="new-game">New Game</button>
-    <button id="check-solution">Check Solution</button>
-    <input id="player-name" type="text" maxlength="20" placeholder="Your name" />
-    <span id="message"></span>
-  </div>
-  <div id="high-scores" class="high-scores">
-    <h2>Top 10 Scores</h2>
-    <ol id="high-scores-list"></ol>
-  </div>
-  <script src="/static/main.js"></script>
+
+    <div class="game-container">
+
+        <header class="game-header">
+            <h1>Sudoku Game</h1>
+
+            <button id="dark-mode-toggle" type="button">
+                Dark Mode
+            </button>
+        </header>
+
+
+        <!-- Difficulty Selection -->
+        <div class="difficulty-controls">
+
+            <label for="difficulty">
+                Difficulty:
+            </label>
+
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+
+        </div>
+
+
+        <!-- Timer -->
+        <div class="game-info">
+
+            <div id="timer">
+                Time: 00:00
+            </div>
+
+            <div id="hints-used">
+                Hints Used: 0
+            </div>
+
+        </div>
+
+
+        <!-- Sudoku Board -->
+        <div id="sudoku-board"></div>
+
+
+        <!-- Game Controls -->
+        <div class="controls">
+
+            <button id="new-game" type="button">
+                New Game
+            </button>
+
+            <button id="hint" type="button">
+                Hint
+            </button>
+
+            <button id="check-solution" type="button">
+                Check Solution
+            </button>
+
+        </div>
+
+
+        <!-- Player Information -->
+        <div class="player-controls">
+
+            <label for="player-name">
+                Player Name:
+            </label>
+
+            <input
+                id="player-name"
+                type="text"
+                maxlength="20"
+                placeholder="Your name"
+            >
+
+        </div>
+
+
+        <!-- Game Message -->
+        <div id="message" role="status"></div>
+
+
+        <!-- Top 10 Leaderboard -->
+        <section id="high-scores" class="high-scores">
+
+            <h2>Top 10 Scores</h2>
+
+            <ol id="high-scores-list">
+            </ol>
+
+        </section>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="/static/main.js"></script>
+
 </body>
 </html>

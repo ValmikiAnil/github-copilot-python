@@ -117,12 +117,22 @@ function renderPuzzle(puz) {
 }
 
 async function newGame() {
-  const res = await fetch('/new');
-  const data = await res.json();
-  renderPuzzle(data.puzzle);
-  gameStartTime = Date.now();
-  checkCount = 0;
-  document.getElementById('message').innerText = '';
+    const clueCounts = {
+        easy: 40,
+        medium: 35,
+        hard: 30
+    };
+
+    const difficulty = document.getElementById('difficulty').value;
+    const clues = clueCounts[difficulty];
+
+    const res = await fetch(`/new?clues=${clues}`);
+    const data = await res.json();
+
+    renderPuzzle(data.puzzle);
+    gameStartTime = Date.now();
+    checkCount = 0;
+    document.getElementById('message').innerText = '';
 }
 
 async function checkSolution() {
@@ -172,13 +182,59 @@ async function checkSolution() {
     msg.innerText = 'Some cells are incorrect.';
   }
 }
+async function getHint() {
+    try {
+        const res = await fetch('/hint');
+        const data = await res.json();
 
+        if (!res.ok) {
+            document.getElementById('message').innerText =
+                data.error || 'Unable to get hint.';
+            return;
+        }
+
+        const boardDiv = document.getElementById('sudoku-board');
+        const inputs = boardDiv.getElementsByTagName('input');
+
+        const idx = data.row * SIZE + data.col;
+        const input = inputs[idx];
+
+        if (input && !input.disabled) {
+            input.value = data.value;
+            input.className = 'sudoku-cell hint';
+
+            checkCount = 0;
+
+            const hintsElement = document.getElementById('hints-used');
+
+            if (hintsElement) {
+              const current =
+              parseInt(
+            hintsElement.innerText.replace(/\D/g, ''),
+            10
+        ) || 0;
+        hintsElement.innerText = "Hints Used: " + (current + 1);
+      }
+document.getElementById('message').innerText =
+    "Hint: Row " + (data.row + 1) +
+    ", Column " + (data.col + 1) +
+    " = " + data.value;
+        }
+    } catch (error) {
+        console.error(error);
+
+        document.getElementById('message').innerText =
+            'Unable to get hint.';
+    }
+}
 // Wire buttons
 window.addEventListener('load', () => {
-  highScores = loadHighScores();
-  renderHighScores();
-  document.getElementById('new-game').addEventListener('click', newGame);
-  document.getElementById('check-solution').addEventListener('click', checkSolution);
-  // initialize
-  newGame();
+    highScores = loadHighScores();
+    renderHighScores();
+
+    document.getElementById('new-game').addEventListener('click', newGame);
+    document.getElementById('hint').addEventListener('click', getHint);
+    document.getElementById('check-solution').addEventListener('click', checkSolution);
+
+    newGame();
 });
